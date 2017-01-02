@@ -10,6 +10,7 @@
     <properties>
         <scala.version>2.11</scala.version>
         <scala.lib.version>${scala.version}.7</scala.lib.version>
+        <jna.version>4.2.2</jna.version>
     </properties>
     <dependencies>
         <dependency>
@@ -20,7 +21,18 @@
         <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>
-            <version>4.2.2</version>
+            <version>${jna.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna-platform</artifactId>
+            <version>${jna.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
