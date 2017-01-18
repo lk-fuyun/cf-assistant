@@ -1,12 +1,8 @@
 package com.fuyun.game.cf.sample
 
-import java.awt.image.BufferedImage
-import java.awt.{Image, Rectangle, Robot}
-import java.io.File
-import javax.imageio.ImageIO
+import java.awt.{Rectangle, Robot}
 
 import com.fuyun.game.common.{GDI32, User32}
-import com.sun.jna.platform.win32.WinDef.HWND
 import com.sun.jna.platform.win32.WinGDI
 
 
@@ -16,18 +12,20 @@ import com.sun.jna.platform.win32.WinGDI
 object Sample {
   def main(args: Array[String]) {
     val robot = new Robot()
-    val rect = new Rectangle(0, 0, 1024, 768)
-    val times: Int = 500
+    val times: Int = 2000
     val start = System.currentTimeMillis()
     for (i <- 1 to times) {
-      robot.createScreenCapture(rect)
-//      sc(rect)
+            robot.createScreenCapture(rect)
+//      sc()
     }
     val end = System.currentTimeMillis()
     println(s"fps: ${times.toDouble / (end - start) * 1000}")
   }
 
-  def sc(rect: Rectangle): Array[Byte] = {
+  val rect = new Rectangle(0, 0, 1024, 768)
+  private val lineWidth: Int = (rect.width * 3 + 3) & 0x7FFFFFFC
+  val bytes = new Array[Byte](lineWidth * rect.height)
+  def sc(): Array[Byte] = {
     val windowDC = GDI32.INSTANCE.GetDC(User32.INSTANCE.GetDesktopWindow())
     val outputBitmap = GDI32.INSTANCE.CreateCompatibleBitmap(windowDC, rect.width, rect.height)
     try {
@@ -40,9 +38,19 @@ object Sample {
           GDI32.INSTANCE.SelectObject(blitDC, oldBitmap)
         }
         val bi = new WinGDI.BITMAPINFO(40)
-        bi.bmiHeader.biSize = 40
-        val bytes = new Array[Byte](rect.width * rect.height * 3)
-        val ok = GDI32.INSTANCE.GetDIBits(blitDC, outputBitmap, 0, rect.height, null.asInstanceOf[Array[Byte]], bi, WinGDI.DIB_RGB_COLORS)
+
+        bi.bmiHeader.biWidth = rect.width
+        bi.bmiHeader.biHeight = rect.height
+        bi.bmiHeader.biPlanes = 1
+        bi.bmiHeader.biBitCount = 24
+        bi.bmiHeader.biCompression = WinGDI.BI_RGB
+        bi.bmiHeader.biSizeImage = 0
+        bi.bmiHeader.biXPelsPerMeter = 0
+        bi.bmiHeader.biYPelsPerMeter = 0
+        bi.bmiHeader.biClrUsed = 0
+        bi.bmiHeader.biClrImportant = 0
+//        bi.bmiHeader.biSize = bi.bmiHeader.
+        val ok = GDI32.INSTANCE.GetDIBits(blitDC, outputBitmap, 0, rect.height, bytes, bi, WinGDI.DIB_RGB_COLORS)
         if (!ok) {
           sys.error("copy failure")
         }
