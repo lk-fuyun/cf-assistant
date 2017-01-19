@@ -17,7 +17,6 @@ class ScreenCapture(imageDispatcher: ActorRef) extends Actor {
   private val capturing: Receive = {
     case CaptureOnce =>
       val image = robot.createScreenCapture(rect)
-      ImageIO.write()
       imageDispatcher ! ImageDispatcher.OneCapture(image)
       self ! CaptureOnce
     case StopCapture =>
