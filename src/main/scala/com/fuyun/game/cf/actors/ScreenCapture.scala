@@ -1,6 +1,7 @@
 package com.fuyun.game.cf.actors
 
 import java.awt.{Rectangle, Robot}
+import javax.imageio.ImageIO
 
 import akka.actor.{Actor, ActorRef}
 
@@ -16,6 +17,7 @@ class ScreenCapture(imageDispatcher: ActorRef) extends Actor {
   private val capturing: Receive = {
     case CaptureOnce =>
       val image = robot.createScreenCapture(rect)
+      ImageIO.write()
       imageDispatcher ! ImageDispatcher.OneCapture(image)
       self ! CaptureOnce
     case StopCapture =>
