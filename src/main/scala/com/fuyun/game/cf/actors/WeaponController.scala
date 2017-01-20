@@ -1,15 +1,14 @@
 package com.fuyun.game.cf.actors
 
 import akka.actor.{Actor, ActorRef}
-import com.fuyun.game.cf.actors.PersonController.Test
+import com.fuyun.game.cf.actors.WeaponController.Test
 
 /**
   * Created by fuyun on 2017/1/19.
   */
-class PersonController(moveDetector: ActorRef, kMController: ActorRef) extends Actor {
+class WeaponController(moveDetector: ActorRef, kMController: ActorRef) extends Actor {
   val sniper: Receive = {
     case MoveDetector.MovingPoint(x, y) =>
-      kMController ! KMController.MouseMoveTo(x, y)
   }
 
   override def receive: Receive = {
@@ -18,6 +17,13 @@ class PersonController(moveDetector: ActorRef, kMController: ActorRef) extends A
       context.become(sniper)
   }
 }
-object PersonController {
+object WeaponController {
+  type WeaponClass = Actor.Receive
+  case class ChangeWeaponClass(weaponClass: WeaponClass)
   object Test
+
+
+//  object Sniper extends WeaponClass {
+//    case
+//  }
 }

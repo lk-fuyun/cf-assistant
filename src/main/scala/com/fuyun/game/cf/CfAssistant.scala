@@ -1,10 +1,14 @@
 package com.fuyun.game.cf
 
-import java.awt.Rectangle
+import java.awt.{Button, Graphics, Rectangle}
+import java.awt.event.{ActionEvent, ActionListener, MouseEvent, MouseMotionAdapter}
+import javax.swing.JFrame
 
 import akka.actor.{ActorSystem, Props}
 import com.fuyun.game.cf.actors._
 import com.fuyun.game.common.KMLLib
+
+import scala.collection.mutable
 
 /**
   * Created by fuyun on 2017/1/18.
@@ -17,12 +21,32 @@ object CfAssistant {
   val moveDetector = system.actorOf(Props(new MoveDetector(imageDispatcher)), "moveDetector")
 
   def main(args: Array[String]): Unit = {
-    mouseTest()
+    testMouse()
+  }
+  def testMouse(): Unit = {
+    val eventList = new mutable.MutableList[MouseEvent]()
+    val frame = new JFrame() {
+      override def paint(g: Graphics): Unit = {
+        eventList.foreach(e => g.drawOval(e.getX, e.getY, 3, 3))
+      }
+    }
+//    val b = new Button("qc")
+//    b.addActionListener(new ActionListener {
+//      override def actionPerformed(e: ActionEvent): Unit =
+//    })
+    frame.setBounds(0, 0, 1024, 768)
+    frame.addMouseMotionListener(new MouseMotionAdapter {
+      override def mouseDragged(e: MouseEvent): Unit = {
+        eventList += e
+        frame.repaint()
+      }
+    })
+    frame.setVisible(true)
   }
 
   def test(): Unit = {
-    val p = system.actorOf(Props(new PersonController(moveDetector, kMController)), "personController")
-    p ! PersonController.Test
+    val p = system.actorOf(Props(new WeaponController(moveDetector, kMController)), "personController")
+    p ! WeaponController.Test
     screenCapture ! ScreenCapture.SetRectangle(new Rectangle(0, 0, 1024, 768))
     screenCapture ! ScreenCapture.StartCapture
   }
