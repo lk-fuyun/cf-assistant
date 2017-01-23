@@ -9,24 +9,28 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fuyun.game.cf.base.Weapon
 import com.fuyun.game.cf.utils.ImproveAwt._
 
+import scala.collection.JavaConverters._
+
 /**
   * Created by fuyun on 2017/1/19.
   */
 object WeaponUtil {
   val weaponNameColor: Int = (0xFF << 24) + (153 << 16) + (193 << 8) + 193
   val weaponRect = new Rectangle(816, 695, 185, 10)
-  val weapons: Map[String, String] = {
+  val weapons: List[Weapon] = {
     val weaponFile = getClass.getClassLoader.getResourceAsStream("weapons.json")
     val objectMapper = new ObjectMapper()
-    val value: java.util.List[Weapon] = objectMapper.readValue(weaponFile, objectMapper.getTypeFactory.constructCollectionType(classOf[java.util.List[_]], classOf[Weapon]))
-    ???
+    objectMapper.readValue[java.util.List[Weapon]](
+      weaponFile,
+      objectMapper.getTypeFactory.constructCollectionType(classOf[java.util.List[_]], classOf[Weapon])
+    ).asScala.toList
   }
 
-  val hash2Weapon: Map[Int, String] = {
-    val hashes = weapons.values
-    // insure no duplicated weapon hash
-    assert(hashes.toSet.size == hashes.size)
-    weapons.mapValues(Integer.parseInt(_, 16)).map(_.swap)
+  val hash2Weapon: Map[Int, Weapon] = {
+    weapons.groupBy(_.hashId).mapValues {wps =>
+      assert(wps.tail == Nil)
+      wps.head
+    }
   }
 
   def weaponHash(image: BufferedImage): Int = {
@@ -40,8 +44,8 @@ object WeaponUtil {
     locations.sum
   }
 
-  def getWeaponName(image: BufferedImage): Option[String] = {
-    hash2Weapon.get(weaponHash(image))
+  def getWeapon(weaponHash: Int): Option[Weapon] = {
+    hash2Weapon.get(weaponHash)
   }
 
   def main(args: Array[String]): Unit = {

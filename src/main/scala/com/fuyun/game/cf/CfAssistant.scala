@@ -5,7 +5,7 @@ import java.awt.event.{ActionEvent, ActionListener, MouseEvent, MouseMotionAdapt
 import javax.swing.JFrame
 
 import akka.actor.{ActorSystem, Props}
-import com.fuyun.game.cf.actors._
+import com.fuyun.game.cf.actors.{Controller, _}
 import com.fuyun.game.common.KMLLib
 
 import scala.collection.mutable
@@ -17,8 +17,6 @@ object CfAssistant {
   val system = ActorSystem("test-system")
   val imageDispatcher = system.actorOf(Props[ImageDispatcher], "imageDispatcher")
   val screenCapture = system.actorOf(Props(classOf[ScreenCapture], imageDispatcher), "screenCapture")
-  val kMController = system.actorOf(Props[KMController], "KMController")
-  val moveDetector = system.actorOf(Props(new MoveDetector(imageDispatcher)), "moveDetector")
 
   def main(args: Array[String]): Unit = {
     testMouse()
@@ -45,8 +43,8 @@ object CfAssistant {
   }
 
   def test(): Unit = {
-    val p = system.actorOf(Props(new WeaponController(moveDetector, kMController)), "personController")
-    p ! WeaponController.Test
+    val p = system.actorOf(Props(new Controller(imageDispatcher)), "personController")
+    p ! Controller.Test
     screenCapture ! ScreenCapture.SetRectangle(new Rectangle(0, 0, 1024, 768))
     screenCapture ! ScreenCapture.StartCapture
   }

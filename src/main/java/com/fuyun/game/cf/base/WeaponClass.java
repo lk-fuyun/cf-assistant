@@ -5,5 +5,6 @@ package com.fuyun.game.cf.base;
  */
 public enum WeaponClass {
     SNIPE,
-    PISTOL
+    PISTOL,
+    UNKNOWN
 }

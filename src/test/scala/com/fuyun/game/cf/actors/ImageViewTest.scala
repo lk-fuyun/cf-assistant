@@ -6,6 +6,7 @@ import javax.swing.JFrame
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import com.fuyun.game.cf.actors.ImageViewTest.Count
+import com.fuyun.game.common.KMLLib
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -54,4 +55,17 @@ object ImageViewTest {
     screenCapture ! ScreenCapture.SetRectangle(new Rectangle(0, 0, 800, 600))
     screenCapture ! ScreenCapture.StartCapture
   }
+}
+object KMCTest extends App {
+  KMLLib.INSTANCE.OpenDevice()
+  KMLLib.INSTANCE.SimulationMove(0, 500)
+  val times = 50
+  val startTime = System.currentTimeMillis()
+  for (elem <- 1 to times) {
+    val p = 50 * (elem % 2)
+    KMLLib.INSTANCE.SimulationMove(p, 500)
+  }
+  val stop = System.currentTimeMillis()
+  println(s"${(stop - startTime) / times} ms/require")
+  KMLLib.INSTANCE.CloseDevice()
 }
