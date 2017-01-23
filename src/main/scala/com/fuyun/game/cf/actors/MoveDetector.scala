@@ -12,11 +12,6 @@ class MoveDetector(imageDispatcher: ActorRef) extends Actor {
 
   import MoveDetector._
 
-  @scala.throws[Exception](classOf[Exception])
-  override def preStart(): Unit = {
-    imageDispatcher ! ImageDispatcher.Subscribe
-  }
-
   var preImage: BufferedImage = _
   var receiver: ActorRef = _
 
@@ -30,6 +25,7 @@ class MoveDetector(imageDispatcher: ActorRef) extends Actor {
       if (diffs.nonEmpty) {
         val (ax, ay) = diffs.unzip
         receiver ! MovingPoint(ax.sum / diffs.size, ay.sum / diffs.size)
+        imageDispatcher ! ImageDispatcher.UnSubscribe
         context.unbecome()
         preImage = null
         return
