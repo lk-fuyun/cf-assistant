@@ -1,8 +1,7 @@
 package com.fuyun.game.cf.actors
 
-import java.awt.image.BufferedImage
-
 import akka.actor.{Actor, ActorRef, Props}
+import com.fuyun.game.cf.actors.weapons.{Pistol, Sniper}
 import com.fuyun.game.cf.base.WeaponClass
 
 /**
@@ -10,70 +9,20 @@ import com.fuyun.game.cf.base.WeaponClass
   */
 class Controller(imageDispatcher: ActorRef) extends Actor {
 
-  val kMController = context.actorOf(Props[KMController], "KMController")
-
-  def switchSnip(): Unit = {
-    kMController ! KMController.MouseWheel(1)
-    kMController ! KMController.MouseWheel(-1)
-  }
-
-  def fire(): Unit = {
-//    kMController ! KMController.MouseClick
-  }
-
-  def isRoom(implicit image: BufferedImage): Boolean = {
-    ???
-  }
-
-  def isInRange(implicit image: BufferedImage): Boolean = {
-    ???
-  }
-
-  def isMoving(implicit image: BufferedImage): Boolean = {
-    ???
-  }
-
   val weaponClass2Motion = Map(
-    WeaponClass.SNIPE -> sniper
+    WeaponClass.SNIPE -> Props[Sniper],
+    WeaponClass.PISTOL -> Props[Pistol]
   )
-
-  def withWeaponChange(weaponLogic: Receive): Receive = {
-    val weaponChange: Receive = {
-      case WeaponMonitor.WeaponClassChange(changedClass) =>
-        context.become(weaponClass2Motion(changedClass))
-    }
-    weaponLogic.orElse(weaponChange)
+  private def getOrCreateActor(c: WeaponClass): ActorRef = {
+    context.child(c.name()).getOrElse(context.actorOf(weaponClass2Motion(c)))
   }
 
-  def sniper: Receive = withWeaponChange {
-    case ImageDispatcher.OneCapture(image) =>
-      implicit val i = image
-      if (isInRange && isRoom && isMoving) {
-        fire()
-        switchSnip()
-      }
-  }
-
-  def rifle = withWeaponChange {
-    case ImageDispatcher.OneCapture(image) =>
-      implicit val i = image
-//      if (isInRange && )
-  }
+  var curGun: ActorRef = getOrCreateActor(WeaponClass.PISTOL)
 
   override def receive: Receive = {
-    ???
+    case x: ImageDispatcher.OneCapture =>
+      curGun ! x
+    case WeaponMonitor.WeaponClassChange(c) =>
+      curGun = getOrCreateActor(c)
   }
-}
-
-object Controller {
-  type WeaponClass = Actor.Receive
-
-  case class ChangeWeaponClass(weaponClass: WeaponClass)
-
-  object Test
-
-
-  //  object Sniper extends WeaponClass {
-  //    case
-  //  }
 }
