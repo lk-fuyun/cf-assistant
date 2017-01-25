@@ -3,8 +3,8 @@ package com.fuyun.game.cf.actors.weapons
 import java.awt.Rectangle
 import java.awt.image.BufferedImage
 
-import akka.actor.Actor
-import com.fuyun.game.cf.actors.ImageDispatcher
+import akka.actor.{Actor, Props}
+import com.fuyun.game.cf.actors.{ImageDispatcher, KMController}
 import com.fuyun.game.cf.utils.ImproveAwt._
 
 /**
@@ -12,6 +12,7 @@ import com.fuyun.game.cf.utils.ImproveAwt._
   */
 class Sniper extends Actor {
   val moveDetectRange = new Rectangle(???, ???, ???, ???)
+  val kMController = context.actorOf(Props[KMController], "kmController")
   var preImage: BufferedImage = _
 
   def isRoom(implicit image: BufferedImage): Boolean = {
@@ -27,8 +28,8 @@ class Sniper extends Actor {
     case ImageDispatcher.OneCapture(image) =>
       implicit val i = image
       if (isInRange && isRoom && isMoving) {
-        context.parent ! Action.Shoot
-        context.parent ! Action.TakeBackSniper
+        kMController ! KMController.Shoot
+        kMController ! KMController.TakeBackSniper
       }
   }
 }

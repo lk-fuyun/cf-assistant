@@ -1,10 +1,10 @@
 package com.fuyun.game.cf.actors
 
-import java.awt.Robot
-
-import akka.actor.Actor
-import com.fuyun.game.cf.actors.KMController.{MouseMoveTo, MouseWheel}
+import akka.actor.{Actor, Cancellable}
 import com.fuyun.game.common.KMLLib
+
+import scala.concurrent.duration._
+import scala.language.postfixOps
 
 /**
   * Created by fuyun on 2017/1/18.
@@ -12,31 +12,72 @@ import com.fuyun.game.common.KMLLib
   */
 class KMController extends Actor {
 
+  import KMController._
+
+  val kml = KMLLib.INSTANCE
+
   @scala.throws[Exception](classOf[Exception])
   override def preStart(): Unit = {
-    KMLLib.INSTANCE.OpenDevice()
-  }
-
-  override def receive: Receive = {
-    case MouseMoveTo(x, y) =>
-      KMLLib.INSTANCE.SimulationMove(x, y)
-    case MouseWheel(count: Int) =>
-      KMLLib.INSTANCE.MouseWheel(count)
+    kml.OpenDevice()
   }
 
   @scala.throws[Exception](classOf[Exception])
   override def postStop(): Unit = {
-    KMLLib.INSTANCE.CloseDevice()
+    kml.CloseDevice()
+  }
+
+  private object Tick
+
+  var timeController: Cancellable = _
+
+  var touchTimes = 0
+  val touchFiring: Receive = {
+    case Tick =>
+      touchTimes += 1
+      if (touchTimes >= 5) {
+        touchTimes = -3
+      }
+      if (touchTimes >= 0) {
+        kml.LeftClick(1)
+      }
+    case StopTouchFire =>
+      context.unbecome()
+      timeController.cancel()
+  }
+
+  val firing: Receive = {
+    case StopFire =>
+      kml.LeftUp()
+      context.unbecome()
+  }
+
+  override def receive: Receive = {
+    case Shoot =>
+      kml.LeftClick(1)
+    case StartTouchFire =>
+      context.become(touchFiring, discardOld = false)
+      timeController = context.system.scheduler.schedule(0 milli, 100 milli)(self ! Tick)
+    case TakeBackSniper =>
+      kml.MouseWheel(-1)
+      kml.MouseWheel(1)
+    case StartFire =>
+      kml.LeftDown()
+      context.become(firing, discardOld = false)
   }
 }
 
 object KMController {
+
   object Shoot
-  object FinFire
-  case class MouseMoveTo(x: Int, y: Int)
 
-  case class PressKey(key: Char)
+  object StartTouchFire
 
-  case class MouseWheel(count: Int)
+  object StopTouchFire
+
+  object StartFire
+
+  object StopFire
+
+  object TakeBackSniper
 
 }

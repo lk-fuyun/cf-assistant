@@ -2,8 +2,8 @@ package com.fuyun.game.cf.actors.weapons
 
 import java.awt.image.BufferedImage
 
-import akka.actor.{Actor, Cancellable}
-import com.fuyun.game.cf.actors.ImageDispatcher
+import akka.actor.{Actor, Cancellable, Props}
+import com.fuyun.game.cf.actors.{ImageDispatcher, KMController}
 
 import scala.concurrent.duration._
 import scala.language.postfixOps
@@ -12,6 +12,7 @@ import scala.language.postfixOps
   * Created by fuyun on 2017/1/24.
   */
 class Rifle extends Actor {
+  val kMController = context.actorOf(Props[KMController], "kmController")
   var curImage: BufferedImage = _
 
   object Tick
@@ -26,7 +27,7 @@ class Rifle extends Actor {
       if (inRangeCount == 0) {
         context.unbecome()
         timerController.cancel()
-        context.parent ! Action.StopFire
+        context.parent ! KMController.StopTouchFire
       }
       inRangeCount = 0
   }
@@ -38,7 +39,7 @@ class Rifle extends Actor {
         timerController = context.system.scheduler.schedule(400 milli, 400 milli) {
           self ! Tick
         }
-        context.parent ! Action.StartFire
+        context.parent ! KMController.StartTouchFire
       }
   }
 

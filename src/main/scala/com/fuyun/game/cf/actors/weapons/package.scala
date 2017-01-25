@@ -10,18 +10,4 @@ package object weapons {
   def isInRange(implicit image: BufferedImage): Boolean = {
     ???
   }
-
-  object Action {
-
-    // 只开一发，适用于狙击枪,手枪
-    object Shoot
-
-    object TakeBackSniper
-
-    object StartFire
-
-    object StopFire
-
-  }
-
 }

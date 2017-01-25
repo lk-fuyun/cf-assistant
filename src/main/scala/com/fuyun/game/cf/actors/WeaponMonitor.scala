@@ -16,7 +16,7 @@ class WeaponMonitor(imageDispatcher: ActorRef, controller: ActorRef) extends Act
   override def preStart(): Unit = {
     imageDispatcher ! ImageDispatcher.Subscribe
   }
-  var preWeaponClass: WeaponClass = _
+  var preWeaponClass: WeaponClass = WeaponClass.UNKNOWN
 
   def hasCursor(image: BufferedImage): Boolean = {
     ???
