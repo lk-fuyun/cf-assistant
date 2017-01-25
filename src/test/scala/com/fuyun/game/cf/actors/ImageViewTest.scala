@@ -69,3 +69,8 @@ object KMCTest extends App {
   println(s"${(stop - startTime) / times} ms/require")
   KMLLib.INSTANCE.CloseDevice()
 }
+object MTest extends App {
+  KMLLib.INSTANCE.OpenDevice()
+  KMLLib.INSTANCE.KeyPress("q", 2)
+  KMLLib.INSTANCE.CloseDevice()
+}

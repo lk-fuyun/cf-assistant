@@ -5,6 +5,7 @@ import com.fuyun.game.common.KMLLib
 
 import scala.concurrent.duration._
 import scala.language.postfixOps
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
   * Created by fuyun on 2017/1/18.
@@ -50,7 +51,7 @@ class KMController extends Actor {
       kml.LeftUp()
       context.unbecome()
   }
-
+  object CB
   override def receive: Receive = {
     case Shoot =>
       kml.LeftClick(1)
@@ -58,8 +59,10 @@ class KMController extends Actor {
       context.become(touchFiring, discardOld = false)
       timeController = context.system.scheduler.schedule(0 milli, 100 milli)(self ! Tick)
     case TakeBackSniper =>
-      kml.MouseWheel(-1)
-      kml.MouseWheel(1)
+      kml.KeyPress("3", 1)
+      context.system.scheduler.scheduleOnce(300 millis)(self ! CB)
+    case CB =>
+      kml.KeyPress("q", 1)
     case StartFire =>
       kml.LeftDown()
       context.become(firing, discardOld = false)

@@ -1,4 +1,4 @@
 [
-  { "name": "knife", "hash": 1234, "class": "abc" },
-  { "name": "knife", "hash": 1234, "class": "abc" }
+  {"name":"KNIFE", "hashId": 21628973, "weaponClass": "UNKNOWN"},
+  {"name":"AWM-天龙", "hashId": 29851492, "weaponClass": "SNIPE"}
 ]

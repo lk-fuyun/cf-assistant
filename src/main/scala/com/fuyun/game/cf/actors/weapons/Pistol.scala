@@ -7,6 +7,6 @@ import akka.actor.Actor
   */
 class Pistol extends Actor {
   override def receive: Receive = {
-    ???
+    case _ =>
   }
 }

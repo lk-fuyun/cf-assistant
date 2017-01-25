@@ -70,7 +70,7 @@ public interface KMLLib extends Library {
 
     boolean WheelDown(int count);
 
-    boolean MouseWheel(int count);
+//    boolean MouseWheel(int count);
 
     boolean SimulationMove(int x, int y);
 
